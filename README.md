@@ -1,6 +1,6 @@
 <div align='center'>
 
-# COVID Vaccine Registration System
+# Freelance Time Tracker API
 
 </div>
 

@@ -15,13 +15,7 @@ class User extends Authenticatable
         'name',
         'gender',
         'email',
-        'date_of_birth',
-        'nid',
-        'address',
         'phone',
-        'vaccine_status',
-        'vaccine_center_id',
-        'scheduled_date',
     ];
 
     protected $hidden = [
@@ -38,9 +32,4 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-
-    public function vaccineCenter()
-    {
-        return $this->belongsTo(VaccineCenter::class);
-    }
 }
