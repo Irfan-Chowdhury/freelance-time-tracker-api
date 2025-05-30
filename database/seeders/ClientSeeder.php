@@ -14,6 +14,7 @@ class ClientSeeder extends Seeder
     {
         Client::insert([
             [
+                'user_id' => 1,
                 'name' => 'Acme Corp',
                 'email' => 'client1@acme.com',
                 'gender' => 'female',
@@ -22,6 +23,7 @@ class ClientSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
+                'user_id' => 1,
                 'name' => 'Beta Solutions',
                 'email' => 'client2@beta.com',
                 'gender' => 'male',

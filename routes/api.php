@@ -1,10 +1,11 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\SearchController;
-use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\API\VaccineCenterController;
-use App\Http\Controllers\API\VaccineRegistrationController;
+use App\Http\Controllers\API\ClientController;
+// use App\Http\Controllers\API\SearchController;
+// use App\Http\Controllers\API\UserController;
+// use App\Http\Controllers\API\VaccineCenterController;
+// use App\Http\Controllers\API\VaccineRegistrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,23 +21,25 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/users', [UserController::class, 'index']);
-    Route::apiResource('/vaccine-centers', VaccineCenterController::class);
+    // Route::get('/users', [UserController::class, 'index']);
+    // Route::apiResource('/vaccine-centers', VaccineCenterController::class);
+    Route::apiResource('clients', ClientController::class);
 });
 
 
 
 
 
+Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::get('user', [AuthController::class, 'user'])->middleware('auth:sanctum');
+Route::get('profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
 
 
 // Route::prefix('v1')->group(function (Request $request) {
-    Route::post('/registration', [VaccineRegistrationController::class, 'store'])->name('registration.store');
+    // Route::post('/registration', [VaccineRegistrationController::class, 'store'])->name('registration.store');
     // Route::get('/vaccine-centers', [VaccineCenterController::class, 'index'])->name('vaccine-center-list');
     // Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::post('/search', [SearchController::class, 'searchProcess'])->name('searchProcess');
+    // Route::post('/search', [SearchController::class, 'searchProcess'])->name('searchProcess');
 // });
 

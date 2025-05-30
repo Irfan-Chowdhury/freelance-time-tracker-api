@@ -21,14 +21,14 @@ return new class extends Migration
             $table->json('tags')->nullable(); // For bonus: billable/non-billable
             $table->timestamps();
         });
-
     }
 
-    /**
-     * Reverse the migrations.
-     */
+
     public function down(): void
     {
-        Schema::dropIfExists('times');
+        Schema::table('time_logs', function (Blueprint $table) {
+            $table->dropForeign('time_logs_project_id_foreign');
+            $table->dropIfExists();
+        });
     }
 };

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegistrationRequest;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,9 +13,28 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function register(RegistrationRequest $request)
+    {
+        // Create a new user
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'gender' => $request->gender,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Create a new token for the user
+        $token = $user->createToken('authToken')->plainTextToken;
+
+        return response()->json([
+            'message' => 'User registered successfully',
+            'user' => new UserResource($user),
+            'token' => $token,
+        ], 201);
+    }
     public function login(LoginRequest $request)
     {
-
         $user = User::where('email', $request->email)->first();
 
         // Check if user exists and password is correct
@@ -47,7 +67,7 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function user(Request $request)
+    public function profile(Request $request)
     {
         return response()->json($request->user(), 200);
     }

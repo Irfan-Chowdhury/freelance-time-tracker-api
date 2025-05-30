@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
     {
         User::create([
             'name' => 'Irfan Chowdhury',
-            'email' => 'admin@gmai.com',
+            'email' => 'admin@gmail.com',
             'gender' => 'male',
             'phone' => '018294998634',
             'email_verified_at' => now(),

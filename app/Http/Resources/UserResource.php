@@ -14,15 +14,13 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'nid' => $this->nid,
-            'vaccine_status' => $this->vaccine_status,
-            'scheduled_date' => $this->scheduled_date,
+            'gender' => $this->gender,
+            'phone' => $this->phone,
 
             // 'vaccineCenter' => $this->when($request->has('vaccineCenter'), function(){
             //     return new VaccineCenterResource($this->vaccineCenter);
             // }),
-
-            'vaccineCenter' => $this->whenLoaded('vaccineCenter', new VaccineCenterResource($this->vaccineCenter)),
+            // 'vaccineCenter' => $this->whenLoaded('vaccineCenter', new VaccineCenterResource($this->vaccineCenter)),
 
         ];
     }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->index()->constrained('clients')->onDelete('cascade');
+            $table->foreignId('client_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('status', ['active', 'completed'])->default('active');
@@ -29,7 +29,6 @@ return new class extends Migration
     {
         Schema::table('projects', function (Blueprint $table) {
             $table->dropForeign('projects_client_id_foreign');
-            $table->dropIndex(['client_id']);
             $table->dropIfExists();
         });
     }
