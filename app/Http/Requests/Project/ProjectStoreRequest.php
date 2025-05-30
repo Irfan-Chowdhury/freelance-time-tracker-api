@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Project;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ClientStoreRequest extends FormRequest
+class ProjectStoreRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -24,14 +24,14 @@ class ClientStoreRequest extends FormRequest
         parent::failedValidation($validator);  // Use the default behavior for non-API requests
     }
 
-
     public function rules(): array
     {
         return [
-            'name'   => 'required|string|max:255',
-            'email'  => 'required|email|unique:clients,email',
-            'gender' => 'required|in:male,female,other',
-            'phone'  => 'required|string|max:20',
+            'client_id'   => 'required|exists:clients,id',
+            'title'       => 'required|string|max:255|unique:projects,title',
+            'description' => 'nullable|string',
+            'status'      => 'in:active,completed',
+            'deadline'    => 'nullable|date',
         ];
     }
 }

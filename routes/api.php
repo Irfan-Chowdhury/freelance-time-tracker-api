@@ -2,10 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ClientController;
-// use App\Http\Controllers\API\SearchController;
-// use App\Http\Controllers\API\UserController;
-// use App\Http\Controllers\API\VaccineCenterController;
-// use App\Http\Controllers\API\VaccineRegistrationController;
+use App\Http\Controllers\API\ProjectController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::get('/users', [UserController::class, 'index']);
     // Route::apiResource('/vaccine-centers', VaccineCenterController::class);
     Route::apiResource('clients', ClientController::class);
+    Route::apiResource('projects', ProjectController::class);
 });
 
 

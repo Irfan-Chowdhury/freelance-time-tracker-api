@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientStoreRequest;
-use App\Http\Requests\ClientUpdateRequest;
+use App\Http\Requests\Client\ClientStoreRequest;
+use App\Http\Requests\Client\ClientUpdateRequest;
 use App\Models\Client;
 use Illuminate\Http\Request;
 
@@ -13,7 +13,7 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         // $clients = Client::with('user')->get();
-        $clients = $request->user()->clients()->get();;
+        $clients = $request->user()->clients()->get();
 
         return response()->json($clients);
     }

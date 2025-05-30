@@ -22,4 +22,9 @@ class Project extends Model
     protected $attributes = [
         'status' => 'active',
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
 }
