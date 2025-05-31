@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\ProjectController;
+use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\TimeLogController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::get('profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
+
     Route::apiResource('clients', ClientController::class);
     Route::apiResource('projects', ProjectController::class);
 
@@ -28,11 +32,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', 'store');
             Route::put('/{timeLog}', 'update');
             Route::delete('/{timeLog}', 'destroy');
-            // Timer-specific route
-            Route::post('/{timeLog}/stop', 'stopTimer');
+            Route::post('/{timeLog}/stop', 'stopTimer'); // Timer-specific route
         });
-
     });
+
+    Route::get('/report', [ReportController::class, 'index']);
 });
 
 
@@ -41,8 +45,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
-Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::get('profile', [AuthController::class, 'profile'])->middleware('auth:sanctum');
 
 
 // Route::prefix('v1')->group(function (Request $request) {
