@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::controller(TimeLogController::class)->group(function() {
             Route::get('/', 'index');
             Route::post('/', 'store');
+            Route::get('/pdf', 'pdfExport');
             Route::put('/{timeLog}', 'update');
             Route::delete('/{timeLog}', 'destroy');
             Route::post('/{timeLog}/stop', 'stopTimer'); // Timer-specific route

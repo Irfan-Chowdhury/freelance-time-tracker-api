@@ -9,6 +9,8 @@ use App\Models\TimeLog;
 use Illuminate\Http\Request;
 use DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class TimeLogController extends Controller
 {
@@ -78,6 +80,35 @@ class TimeLogController extends Controller
 
         return response()->json(['message' => 'Time log stopped successfully.', 'data' => $timeLog], 201);
 
+    }
+
+
+    public function pdfExport(Request $request)
+    {
+        $user = $request->user();
+
+        $query = TimeLog::with('project.client')
+            ->whereHas('project.client', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            });
+
+        if ($request->filled('from')) {
+            $query->where('start_time', '>=', Carbon::parse($request->from));
+        }
+
+        if ($request->filled('to')) {
+            $query->where('end_time', '<=', Carbon::parse($request->to));
+        }
+
+        if ($request->filled('project_id')) {
+            $query->where('project_id', $request->project_id);
+        }
+
+        $timeLogs = $query->orderBy('start_time', 'desc')->get();
+
+        $pdf = Pdf::loadView('pdf.time_logs', ['timeLogs' => $timeLogs]);
+
+        return $pdf->download('time_logs.pdf');
     }
 
 
