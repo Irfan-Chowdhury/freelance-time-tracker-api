@@ -25,4 +25,9 @@ class TimeLog extends Model
     protected $attributes = [
         'hours' => 0.00, // Default value for hours
     ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }

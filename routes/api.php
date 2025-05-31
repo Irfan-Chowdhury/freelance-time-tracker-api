@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\ProjectController;
+use App\Http\Controllers\API\TimeLogController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,10 +19,20 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Route::get('/users', [UserController::class, 'index']);
-    // Route::apiResource('/vaccine-centers', VaccineCenterController::class);
     Route::apiResource('clients', ClientController::class);
     Route::apiResource('projects', ProjectController::class);
+
+    Route::prefix('time-logs')->group(function () {
+        Route::controller(TimeLogController::class)->group(function() {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::put('/{timeLog}', 'update');
+            Route::delete('/{timeLog}', 'destroy');
+            // Timer-specific route
+            Route::post('/{timeLog}/stop', 'stopTimer');
+        });
+
+    });
 });
 
 
