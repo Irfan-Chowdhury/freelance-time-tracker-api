@@ -265,11 +265,17 @@ Some screenshot given below -
 
 <br>
 
-## Performance Notes
+## ⚡ Performance Notes
 
-* To optimize reporting queries, indexes have been added on `start_time` and `end_time` columns in the `time_logs` table.
-* This improves the efficiency of date-based filtering and aggregation (e.g., total hours per day/week/month).
-* Eloquent relationships are eager-loaded where needed to reduce N+1 query problems.
+* To optimize reporting queries, **indexes** have been added on the `start_time` and `end_time` columns in the `time_logs` table.
+
+  * This improves the efficiency of **date-based filtering** and **aggregation** (e.g., total hours per day/week/month).
+* **Eloquent relationships are eager-loaded** where needed to avoid N+1 query problems and reduce database load.
+* **Caching** has been applied to frequently accessed data:
+
+  * All **clients** and **projects** for the authenticated user are cached per user to reduce repetitive queries.
+  * **Report results** are cached based on filters like date range, client, and project to avoid heavy recomputation during repeated API hits.
+* These optimizations collectively enhance API performance, especially under high traffic or large data volumes.
 
 ---
 

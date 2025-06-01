@@ -7,6 +7,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TimeLogController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Response;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +44,16 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     });
 
     Route::get('/report', [ReportController::class, 'index']);
+
+
+    Route::get('/clear-cache', function () {
+        Artisan::call('cache:clear');
+        
+        return response()->json([
+            'message' => 'Cache cleared successfully.',
+        ]);
+    });
+
 });
 
 

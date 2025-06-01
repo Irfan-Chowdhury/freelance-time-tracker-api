@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\TimeLog;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class ReportService
 {
@@ -13,9 +14,19 @@ class ReportService
     {
         $user = $request->user();
 
-        return TimeLog::whereHas('project.client', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
+        // Create a unique cache key based on the filter parameters
+        $cacheKey = 'report_' . md5(json_encode([
+            'user_id' => $user->id,
+            'client_id' => $request->client_id ?? null,
+            'project_id' => $request->project_id ?? null,
+            'from' => $from ?? null,
+            'to' => $to ?? null
+        ]));
+
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($user, $request, $from, $to) {
+            return TimeLog::whereHas('project.client', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
             ->whereBetween('start_time', [$from, Carbon::parse($to)->endOfDay()])
             ->when($request->client_id, function ($q) use ($request) {
                 $q->whereHas('project.client', function ($q2) use ($request) {
@@ -26,6 +37,8 @@ class ReportService
                 $q->where('project_id', $request->project_id);
             })
             ->get();
+
+        });
     }
 
     public function getByDate(object $timeLogs): ?object

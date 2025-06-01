@@ -6,12 +6,15 @@ use App\Http\Requests\Project\ProjectStoreRequest;
 use App\Http\Requests\Project\ProjectUpdateRequest;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $projects = $request->user()->projects;
+        $projects = Cache::remember('user_'.$request->user()->id.'_project', now()->addMinutes(30), function () use ($request) {
+            return $request->user()->projects;
+        });
 
         return response()->json($projects);
     }

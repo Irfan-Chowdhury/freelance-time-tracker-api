@@ -7,9 +7,6 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
@@ -20,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        date_default_timezone_set(env('APP_TIMEZONE'));
+        date_default_timezone_set(config('app.timezone'));
         // JsonResource::withoutWrapping();
     }
 }

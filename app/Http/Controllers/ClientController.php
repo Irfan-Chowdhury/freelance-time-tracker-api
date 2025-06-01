@@ -9,13 +9,16 @@ use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 
 class ClientController extends Controller
 {
     public function index(Request $request)
     {
         try {
-            $clients = $request->user()->clients()->get();
+            $clients = Cache::remember('user_'.$request->user()->id.'_clients', now()->addMinutes(30), function () use ($request) {
+                return $request->user()->clients()->get();
+            });
 
             return ClientResource::collection($clients);
 
