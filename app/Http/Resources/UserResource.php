@@ -16,12 +16,6 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'gender' => $this->gender,
             'phone' => $this->phone,
-
-            // 'vaccineCenter' => $this->when($request->has('vaccineCenter'), function(){
-            //     return new VaccineCenterResource($this->vaccineCenter);
-            // }),
-            // 'vaccineCenter' => $this->whenLoaded('vaccineCenter', new VaccineCenterResource($this->vaccineCenter)),
-
         ];
     }
 }
