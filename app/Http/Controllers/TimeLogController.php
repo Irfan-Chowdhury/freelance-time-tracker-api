@@ -4,136 +4,101 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TimeLog\TimeLogStoreRequest;
 use App\Http\Requests\TimeLog\TimeLogUpdateRequest;
+use App\Http\Resources\TimeLogResource;
 use App\Models\TimeLog;
-use App\Notifications\DailyHoursExceededNotification;
-use Illuminate\Http\Request;
-use DB;
-use Carbon\Carbon;
+use App\Services\TimeLogService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TimeLogController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, TimeLogService $timeLogService)
     {
-        $user = $request->user();
+        $timeLogs = $timeLogService->getAll($request);
 
-        // DB::enableQueryLog();
-        $logs = TimeLog::whereHas('project.client', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        })
-        ->latest()
-        ->paginate(10);
-
-        // dd(DB::getQueryLog());
-
-        return response()->json($logs);
+        return TimeLogResource::collection($timeLogs);
     }
 
-
-    public function store(TimeLogStoreRequest $request)
+    public function store(TimeLogStoreRequest $request, TimeLogService $timeLogService)
     {
-        $data = $request->validated();
+        try {
+            $timeLog = $timeLogService->saveData($request);
 
-        if (!empty($data['end_time'])) {
-            $start = Carbon::parse($data['start_time']);
-            $end = Carbon::parse($data['end_time']);
-            $data['hours'] = round($start->floatDiffInHours($end), 2);
-        } else {
-            $data['hours'] = 0;
-        }
+            return (new TimeLogResource($timeLog))->additional([
+                'message' => 'Time log created successfully.',
+            ]);
 
-        $timeLog = TimeLog::create($data);
+        } catch (Exception $e) {
 
-        self::emailSendIfDailyHourExceed($timeLog);
+            Log::error('Failed to create time log: '.$e->getMessage());
 
-        return response()->json(['message' => 'Time log created successfully.', 'data' => $timeLog], 201);
-    }
-
-    private function emailSendIfDailyHourExceed($timeLog)
-    {
-        $date = Carbon::parse($timeLog->start_time)->toDateString();
-
-        // Get all logs by the same user for that date
-        $client = $timeLog->project->client ?? null;
-        $user = $client?->user ?? null;
-
-
-        if ($user) {
-            $logsForDay = TimeLog::whereHas('project.client', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })->whereDate('start_time', $date)->get();
-
-            $totalHours = round($logsForDay->sum('hours'), 2);
-
-            if ($totalHours > 8) {
-                $user->notify(new DailyHoursExceededNotification($date, $totalHours));
-            }
+            return response()->json([
+                'message' => 'Something went wrong while creating time log.',
+                // 'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
-
-    public function update(TimeLogUpdateRequest $request, TimeLog $timeLog)
+    public function update(TimeLogUpdateRequest $request, TimeLog $timeLog, TimeLogService $timeLogService)
     {
-        $data = $request->validated();
+        try {
+            $timeLog = $timeLogService->updateData($request, $timeLog);
 
-        $timeLog->fill($data);
+            return (new TimeLogResource($timeLog))->additional([
+                'message' => 'Time log updated successfully.',
+            ]);
 
-        // Recalculate hours if both provided
-        if ($timeLog->start_time && $timeLog->end_time) {
-            $timeLog->hours = round(
-                Carbon::parse($timeLog->start_time)->floatDiffInHours($timeLog->end_time),
-                2
-            );
+        } catch (Exception $e) {
+
+            Log::error('Failed to create time log: '.$e->getMessage());
+
+            return response()->json([
+                'message' => 'Something went wrong while creating time log.',
+                // 'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $timeLog->save();
-
-        return response()->json(['message' => 'Time log updated successfully.', 'data' => $timeLog], 201);
 
     }
 
-    public function stopTimer(TimeLog $timeLog)
+    public function stopTimer(TimeLog $timeLog, TimeLogService $timeLogService)
     {
-        if ($timeLog->end_time) {
-            return response()->json(['message' => 'Timer already stopped'], 400);
+        try {
+            $timeLog = $timeLogService->makeTimeStop($timeLog);
+
+            return (new TimeLogResource($timeLog))->additional([
+                'message' => 'Time log stopped successfully.',
+            ]);
+
+        } catch (Exception $e) {
+
+            Log::error('Failed to create time log: '.$e->getMessage());
+
+            return response()->json([
+                'message' => 'Something went wrong while creating time log.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $timeLog->end_time = now();
-        $timeLog->hours = round($timeLog->start_time->floatDiffInHours(now()),2);
-        $timeLog->save();
-
-        return response()->json(['message' => 'Time log stopped successfully.', 'data' => $timeLog], 201);
-
     }
 
-
-    public function pdfExport(Request $request)
+    public function pdfExport(Request $request, TimeLogService $timeLogService)
     {
-        $user = $request->user();
+        try {
+            $timeLogs = $timeLogService->pdfGenerate($request);
 
-        $query = TimeLog::with('project.client')
-            ->whereHas('project.client', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
+            $pdf = Pdf::loadView('pdf.time_logs', ['timeLogs' => $timeLogs]);
 
-        if ($request->filled('from')) {
-            $query->where('start_time', '>=', Carbon::parse($request->from));
+            return $pdf->download('time_logs.pdf');
+
+        } catch (Exception $e) {
+
+            Log::error('Failed to create time log: '.$e->getMessage());
+
+            return response()->json([
+                'message' => 'Something went wrong while creating time log.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        if ($request->filled('to')) {
-            $query->where('end_time', '<=', Carbon::parse($request->to));
-        }
-
-        if ($request->filled('project_id')) {
-            $query->where('project_id', $request->project_id);
-        }
-
-        $timeLogs = $query->orderBy('start_time', 'desc')->get();
-
-        $pdf = Pdf::loadView('pdf.time_logs', ['timeLogs' => $timeLogs]);
-
-        return $pdf->download('time_logs.pdf');
     }
-
-
 }
