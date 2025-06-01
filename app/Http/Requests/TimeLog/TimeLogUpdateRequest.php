@@ -28,7 +28,7 @@ class TimeLogUpdateRequest extends FormRequest
     {
         return [
             'start_time' => 'required|date',
-            'end_time' => 'nullabledate|after_or_equal:start_time',
+            'end_time' => 'nullable|date|after_or_equal:start_time',
             'description' => 'nullable|string',
             'tags' => 'nullable|array',
             // 'tags.*' => 'in:billable,non-billable,client-meeting,personal,admin',
