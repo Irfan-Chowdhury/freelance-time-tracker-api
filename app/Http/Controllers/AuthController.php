@@ -9,8 +9,8 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -31,7 +31,6 @@ class AuthController extends Controller
             return self::errorInfo($e->getMessage());
         }
     }
-
 
     public function login(LoginRequest $request)
     {

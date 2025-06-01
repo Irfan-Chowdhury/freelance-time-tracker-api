@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-
     public function index(Request $request)
     {
         $projects = $request->user()->projects;
@@ -17,12 +16,11 @@ class ProjectController extends Controller
         return response()->json($projects);
     }
 
-
     public function store(ProjectStoreRequest $request)
     {
         $user = $request->user();
 
-        if (!$user->clients()->where('id', $request->client_id)->exists()) {
+        if (! $user->clients()->where('id', $request->client_id)->exists()) {
             return response()->json(['errors' => 'Unauthorized client ID.'], 403);
         }
 
@@ -34,17 +32,16 @@ class ProjectController extends Controller
 
     public function show(Request $request, Project $project)
     {
-        if (!$request->user()->clients()->where('id', $project->client_id)->exists()) {
+        if (! $request->user()->clients()->where('id', $project->client_id)->exists()) {
             return response()->json(['errors' => 'Unauthorized project access.'], 403);
         }
 
         return response()->json($project);
     }
 
-
     public function update(ProjectUpdateRequest $request, Project $project)
     {
-        if (!$request->user()->clients()->where('id', $project->client_id)->exists()) {
+        if (! $request->user()->clients()->where('id', $project->client_id)->exists()) {
             return response()->json(['errors' => 'Unauthorized project access.'], 403);
         }
 
@@ -53,10 +50,9 @@ class ProjectController extends Controller
         return response()->json(['message' => 'Project updated successfully.', 'data' => $project], 201);
     }
 
-
     public function destroy(Request $request, Project $project)
     {
-        if (!$request->user()->clients()->where('id', $project->client_id)->exists()) {
+        if (! $request->user()->clients()->where('id', $project->client_id)->exists()) {
             return response()->json(['errors' => 'Unauthorized project access.'], 403);
         }
 
