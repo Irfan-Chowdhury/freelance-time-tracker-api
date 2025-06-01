@@ -42,16 +42,3 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-
-function userData():array
-{
-    return [
-        'name' => 'Irfan',
-        'gender' => 'male',
-        'email' => 'irfanchow@gmail.com',
-        'date_of_birth' => '1995-08-26',
-        'nid' => '20898241012908',
-        'address' => 'Chittagong',
-        'vaccine_center_id' => 1,
-    ];
-}
