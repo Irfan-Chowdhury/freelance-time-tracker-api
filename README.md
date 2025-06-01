@@ -1,165 +1,206 @@
 <div align='center'>
 
-# Freelance Time Tracker API
+# 🕒 Freelance Time Tracker API
 
 </div>
 
-
-## Configuration
-- PHP-8.1
-- Laravel-10
-
-## How to run this project
-
-### ENV Setup 
-- Please create `.env` file and copy-paste data from the `.env.example` file.
-- You have to setup database related credentials properly in .env
-- You have to setup mail related credentials properly.
-- You have to setup QUEUE_CONNECTION=database to run Queue for sending mail
-- Set APP_TIMEZONE=Asia/Dhaka
+A Laravel 10+ RESTful API that enables freelancers to track and manage work hours across clients and projects, with reporting, PDF export, tagging, and daily notifications.
 
 
-### Update Your Composer 
+
+## Project Overview
+
+This API allows registered freelancers to:
+- Manage their **clients** and **projects**
+- Start, stop, and manually log **work time**
+- View and filter time logs by **day**, **week**, **project**, and **client**
+- Export logs to **PDF**
+- Use **tags** (e.g. `billable`, `non-billable`) for classification
+- Get **email notifications** when 8+ hours are logged in a day
+
+Built with **Laravel Sanctum** for authentication, Eloquent ORM, and JSON API standards.
+
+---
+
+## ⚙️ Setup Instructions
+
+1. **Clone the repository**
+
 ```bash
-composer update
-```
+git clone git@github.com:Irfan-Chowdhury/freelance-time-tracker-api.git
 
-### Generate APP_KEY
+cd freelance-time-tracker-api
+````
+
+2. **Install dependencies**
+
 ```bash
+composer install
+
+cp .env.example .env
+
 php artisan key:generate
 ```
 
-### Migrate 
-<h5>Just run this command</h5>
+3. **Configure `.env`**
+
+Update your database, mail, queue connection and other credentials.
+
+4. **Run migrations and seeders**
 
 ```bash
+php artisan migrate --seed
+```
+
+###  Queue Configuration (for Email Notifications)
+
+Email notifications (when a user logs more than 8 hours in a day) are sent **asynchronously using Laravel queues**. Follow these steps to configure:
+
+5. **Set queue connection**
+
+
+In your `.env`:
+
+```env
+QUEUE_CONNECTION=database
+```
+
+Then run:
+
+```bash
+php artisan config:cache
+```
+
+6. **Create Jobs Table**
+
+```bash
+php artisan queue:table
 php artisan migrate
 ```
 
-### Seeder
-```bash
-php artisan db:seed
-```
+7. **Start Queue Worker**
 
-### Run Project 
-```bash
-php artisan serve
-```
+Run this in a separate terminal:
 
-### Run Queue 
 ```bash
 php artisan queue:work
 ```
 
-### To Test CORN JOB 
+>  This is needed to process the email jobs (like the daily hour notification).
+
+---
+
+8. **Serve the app**
+
 ```bash
-php artisan reminder:send
+php artisan serve
 ```
 
-## Test Case Result 
-Just run the command
-```bash
-php artisan test
+---
+
+## 🔐 API Authentication (Sanctum)
+
+* All API routes (except login/register) are protected by **Laravel Sanctum**.
+* Use `/api/register` and `/api/login` to get an access token.
+* Attach `Authorization: Bearer {token}` header for all authenticated routes.
+
+---
+
+## Database Structure & Seeding
+
+### Tables
+
+* `users` – Freelancer accounts
+* `clients` – Belongs to `users`
+* `projects` – Belongs to `clients`
+* `time_logs` – Belongs to `projects`
+
+### Seed Data
+
+Use `php artisan db:seed` to generate:
+
+*  1 default user
+*  2 sample clients
+*  2 sample projects
+*  5 sample time logs
+
+---
+
+## 📊 Reports & Filtering
+
+### Endpoint
+
+```http
+GET /api/report?client_id=&project_id=&from=YYYY-MM-DD&to=YYYY-MM-DD
 ```
 
-<img src="https://snipboard.io/s5wdeX.jpg">
+### Supported Filters
 
+| Param        | Required | Description         |
+| ------------ | -------- | ------------------- |
+| `client_id`  | Optional | Filter by client    |
+| `project_id` | Optional | Filter by project   |
+| `from`       | Optional | Start date for logs |
+| `to`         | Optional | End date for logs   |
 
-### What I have done
-- User can registration for Covid Vaccine.
-- User can check registration status
-- You (Reviewer) can see all vaccine center list
-- You (Reviewer) can see all users list
-- Used datatable 
-- Testing by PEST Framework
-- Corn Job setup for sending email to the registered user at 09:00 PM before 1 day ago of their vaccine schedule date.
-- Mail sent asynchronously 
-- Schedule vaccination only for the weekdays (Sunday to Thursday)
+### Returns:
 
+```json
+{
+  "by_day": {
+    "2024-06-01": 6.5,
+    "2024-06-02": 3
+  },
+  "by_project": [
+    {
+      "project_id": 1,
+      "project_title": "Landing Page Design",
+      "total_hours": 9.5
+    }
+  ],
+  "by_client": [
+    {
+      "client_id": 2,
+      "client_name": "Acme Inc.",
+      "total_hours": 9.5
+    }
+  ]
+}
+```
 
-### About performance for the `User Registration` and `Search`
+---
 
-Though I try to make a better performance to build this system but If I had more time, I would also recommend the following additional optimizations: -
+## Extra Features
 
-- `Indexing :` Database indexes improve the speed of read operations by helping the database quickly locate rows instead of scanning the entire table. Without indexes, queries (like searching by NID or retrieving schedules) can become slow as the amount of data grows.
-- `Caching:` Use caching mechanisms like Redis or Memcached to store frequently accessed data such as user records or search results. This can significantly reduce the time taken to fetch data from the database.
-- `Eager Loading:` When querying the database for user records or search results, use eager loading to load related data in a single query, instead of making multiple queries. This can help reduce the number of queries made to the database, improving performance.
-- `Queue Email Notifications:` 
-    - Already implemented queued jobs for sending email reminders to avoid blocking the main request. 
-    - Using Laravel's queue system to offload time-consuming tasks like sending emails or processing data in the background, freeing up server resources for faster user registration and search.
-    - Optimizations for production: Use Redis as the queue driver instead of the default database driver for better speed and scalability.
-- `Optimize Images:` Optimize images to reduce their file size and load times. This can help improve the overall performance of the application, especially if I have a lot of images on the site.
-- `Pagination :` If the search feature grows to return multiple results (e.g., by name or partial NID match), implementing pagination will prevent slow queries and heavy memory usage.
-- `Optimize Cron Jobs for Notification Emails`
-    - If the user base grows, sending thousands of emails at once might slow things down.
-        - `Batch processing` can be used to send emails in smaller batches (e.g., 100 at a time) to avoid overloading the mail server.
-        - Use `event-driven notifications` if available, to trigger emails based on real-time activity instead of relying entirely on cron jobs.
-- `Monitor Performance with Tools` : Integrate tools like `Laravel Telescope` or `New Relic` to monitor query performance and identify bottlenecks in real-time.
+### ✅ PDF Export
 
+* Export logs as a downloadable PDF
+* Endpoint:
 
+```http
+GET /api/time-logs/pdf
+```
 
-### About ‘SMS’ notification
+### ✅ Tags for Logs
 
-If an additional requirement to send `SMS notifications` along with database notifications for vaccine reminders is introduced, several changes will be necessary in both the `business logic` and `infrastructure` to ensure SMS is sent effectively. Below are the steps and the changes you’ll need to make.
+* Field: `tags` (`["billable", "non-billable"]`)
+* Store tags as JSON on each time log
 
-1. Need to choose an SMS Gateway Provider like : Twilio, Nexmo (Vonage), Plivo, Textlocal
-2. Need to update the `SendVaccineReminderJob` class to include both database and SMS logic.
-3. Need to update the Notification Parameters
-    - `Phone Number:` Need to modify the user registration form to collect the patient’s phone number.
-    - `Validation Rule:` Need to add a validation rule for a valid phone number in the registration logic.
-4. Need to add SMS gateway credentials in .env
-5. Ensure Error Handling : 
-    - If the `SMS gateway fails`, it may need to log the error and ensure it doesn’t stop the `database notification` from being sent.
-    - Implement a `retry mechanism` if SMS sending fails (it can configure Laravel's job retries).
-6. Queue Both `Database` and `SMS Notifications`
-    - Ensure that both notifications are queued to avoid blocking the main thread.
-    - Laravel jobs and queues will handle the sending efficiently.
-7. Testing and Deployment
-    - Use a sandbox mode (like Twilio’s test environment) to test SMS sending before going live.
-    - Monitor for any rate limits imposed by the SMS gateway provider to avoid being blocked.
+### ✅ Email Notifications
 
+* When a freelancer logs **more than 8 hours** in a single day, an **email alert** is automatically sent.
 
-### Visit Page
+---
 
-- Home Page : http://127.0.0.1:8000
+## Postman Collection
 
-<img src="https://snipboard.io/GkH2eW.jpg">
+You’ll find the Postman collection in the project root:
 
-<br>
+<!-- ```
+/Freelance-TimeTracker-API.postman_collection.json
+``` -->
 
-- Vaccine Registration Form : http://127.0.0.1:8000/registration
+Import it in Postman to test all endpoints easily.
 
-<img src="https://snipboard.io/PjQUwC.jpg">
+---
 
-<br>
-
-- Vaccine Center List : http://127.0.0.1:8000/vaccine-center-list
-
-<img src="https://snipboard.io/hT7SDN.jpg">
-
-<br>
-
-- Vaccine Registration Status : http://127.0.0.1:8000/search
-
-<img src="https://snipboard.io/Zk9Wbd.jpg">
-
-<br>
-
-<img src="https://snipboard.io/M8oPjO.jpg">
-
-<br>
-
-- All Users : http://127.0.0.1:8000/all-users
-
-<img src="https://snipboard.io/OxHjEb.jpg">
-
-
-### Packages used in application
-- #### [Artisan View](https://github.com/svenluijten/artisan-view)
-- #### [Laravel Pint](https://github.com/laravel/pint)
-- #### [PEST Framework](https://pestphp.com)
-
-
-### Reference
-1. Surokkha : https://surokkha.gov.bd/
-# freelance-time-tracker-api

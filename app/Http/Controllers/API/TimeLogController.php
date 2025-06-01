@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TimeLog\TimeLogStoreRequest;
 use App\Http\Requests\TimeLog\TimeLogUpdateRequest;
 use App\Models\TimeLog;
+use App\Notifications\DailyHoursExceededNotification;
 use Illuminate\Http\Request;
 use DB;
 use Carbon\Carbon;
@@ -43,10 +44,38 @@ class TimeLogController extends Controller
             $data['hours'] = 0;
         }
 
-        $log = TimeLog::create($data);
+        $timeLog = TimeLog::create($data);
 
-        return response()->json(['message' => 'Time log created successfully.', 'data' => $log], 201);
+        self::emailSendIfDailyHourExceed($timeLog);
+
+        return response()->json(['message' => 'Time log created successfully.', 'data' => $timeLog], 201);
     }
+
+    private function emailSendIfDailyHourExceed($timeLog)
+    {
+        $date = Carbon::parse($timeLog->start_time)->toDateString();
+
+        // Get all logs by the same user for that date
+        $client = $timeLog->project->client ?? null;
+        $user = $client?->user ?? null;
+
+
+        if ($user) {
+            $logsForDay = TimeLog::whereHas('project.client', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->whereDate('start_time', $date)->get();
+
+            $totalHours = round($logsForDay->sum('hours'), 2);
+
+            if ($totalHours > 8) {
+                $user->notify(new DailyHoursExceededNotification($date, $totalHours));
+            }
+        }
+    }
+
+
+
+
 
     public function update(TimeLogUpdateRequest $request, TimeLog $timeLog)
     {
