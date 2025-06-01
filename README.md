@@ -73,10 +73,11 @@ php artisan config:cache
 
 6. **Create Jobs Table**
 
-```bash
+<!-- ```bash
 php artisan queue:table
 php artisan migrate
-```
+``` -->
+    Already created in migrations.
 
 7. **Start Queue Worker**
 
@@ -95,20 +96,111 @@ php artisan queue:work
 ```bash
 php artisan serve
 ```
+> The API will now be available at http://127.0.0.1:8000
 
 ---
 
-## 🔐 API Authentication (Sanctum)
+<br>
+
+## User Login Credentials 
+
+- **Email** : admin@gmail.com
+- **Password** : admin
+
+---
+
+<br>
+
+## API Endpoints
+
+Here are the available endpoints with their descriptions.
+
+### Authentication :
+---
+
+| **Method** | **Endpoint**       | **Description**              |
+|------------|--------------------|------------------------------|
+| POST       | `/api/register`    | Register new user            |
+| POST       | `/api/login`       | Login and get access token   |
+| POST       | `/api/logout`      | Logout user                  |
+| GET        | `/api/profile`     | Get authenticated user info  |
+---
+
+### Clients :
+---
+
+| **Method** | **Endpoint**         | **Description**              |
+|------------|----------------------|------------------------------|
+| GET        | `/api/clients`       | List all clients             |
+| POST       | `/api/clients`       | Create a new client          |
+| GET        | `/api/clients/{id}`  | Show a specific client       |
+| PUT        | `/api/clients/{id}`  | Update a client              |
+| DELETE     | `/api/clients/{id}`  | Delete a client              |
+
+---
+
+### Projects :
+---
+
+| **Method** | **Endpoint**           | **Description**               |
+|------------|------------------------|-------------------------------|
+| GET        | `/api/projects`        | List all projects             |
+| POST       | `/api/projects`        | Create a new project          |
+| GET        | `/api/projects/{id}`   | Show a specific project       |
+| PUT        | `/api/projects/{id}`   | Update a project              |
+| DELETE     | `/api/projects/{id}`   | Delete a project              |
+---
+
+### Time Logs :
+---
+
+| **Method** | **Endpoint**                         | **Description**                     |
+|------------|--------------------------------------|-------------------------------------|
+| GET        | `/api/time-logs`                     | List all time logs                  |
+| POST       | `/api/time-logs`                     | Create a time log                   |
+| PUT        | `/api/time-logs/{timeLog}`           | Update a time log                   |
+| DELETE     | `/api/time-logs/{timeLog}`           | Delete a time log                   |
+| POST       | `/api/time-logs/{timeLog}/stop`      | Stop timer for ongoing time log     |
+| GET        | `/api/time-logs/pdf`                 | Export time logs as PDF             |
+---
+
+### Reports :
+---
+
+| **Method** | **Endpoint**     | **Description**                            |
+|------------|------------------|--------------------------------------------|
+| GET        | `/api/report`    | Get report by client/project/date range    |
+
+---
+
+
+<br>
+
+## API Authentication (Sanctum)
 
 * All API routes (except login/register) are protected by **Laravel Sanctum**.
 * Use `/api/register` and `/api/login` to get an access token.
 * Attach `Authorization: Bearer {token}` header for all authenticated routes.
-
 ---
+
+<br>
+
+
+## Rate Limiting (Throttle)
+* All authenticated API requests are rate limited using Laravel’s `throttle` middleware.
+* By default, a user can make **60 requests per minute**.
+* If exceeded, the API returns `429 Too Many Requests`.
+* This protects the system from abuse and ensures fair usage.
+---
+
+<br>
 
 ## Database Structure & Seeding
 
-### Tables
+### Database Schema : 
+Please visit the link - https://drawsql.app/teams/irfan-chy/diagrams/freelance-time-tracker
+
+### Tables Relationship
 
 * `users` – Freelancer accounts
 * `clients` – Belongs to `users`
@@ -123,8 +215,20 @@ Use `php artisan db:seed` to generate:
 *  2 sample clients
 *  2 sample projects
 *  5 sample time logs
+---
+
+<br>
+
+## Performance Notes
+
+* To optimize reporting queries, indexes have been added on `start_time` and `end_time` columns in the `time_logs` table.
+* This improves the efficiency of date-based filtering and aggregation (e.g., total hours per day/week/month).
+* Eloquent relationships are eager-loaded where needed to reduce N+1 query problems.
 
 ---
+
+<br>
+
 
 ## 📊 Reports & Filtering
 
@@ -190,17 +294,38 @@ GET /api/time-logs/pdf
 
 * When a freelancer logs **more than 8 hours** in a single day, an **email alert** is automatically sent.
 
----
 
-## Postman Collection
+<br>
 
-You’ll find the Postman collection in the project root:
+## Download Postman Collection & Test with Postman
 
-<!-- ```
-/Freelance-TimeTracker-API.postman_collection.json
-``` -->
+#### Download :
+Please download this **POSTMAN Collection File** : [Download Now](https://drive.google.com/file/d/1VdjZfgayLZ_PVEi3e0-6mj-4FvU70uWA/view?usp=sharing)
 
-Import it in Postman to test all endpoints easily.
 
----
+#### Import :
+
+1. Import the provided Postman collection into your Postman tool.
+2. Setup a Environment to use the token for all API request.
+3. Then click on the root folder, open the **Authorization** tab.  
+    - Select **Type:** `Bearer Token` 
+    - In **Token** field, just put the `environment variable`.
+4. Test all the endpoints mentioned above.
+
+Some screenshot given below - 
+
+<img src="https://snipboard.io/7TLYXB.jpg" />
+<br>
+<img src="https://snipboard.io/v8ADLV.jpg" />
+
+
+<br>
+
+## Error Handling
+The API includes proper error handling with meaningful HTTP status codes:
+- **403 Forbidden:** Unauthorized access.
+- **404 Not Found:** Resource not found.
+- **422 Unprocessable Entity:** Validation errors.
+- **429 Error:** Too Many Request.
+- **500 Error:** Internal Server error.
 
