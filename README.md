@@ -22,6 +22,19 @@ Built with **Laravel Sanctum** for authentication, Eloquent ORM, and JSON API st
 
 ---
 
+<br>
+
+## Technologies
+- **Programming Language:** PHP 8.1
+- **Framework:** Laravel 10.x
+- **Authentication:** Laravel Sanctum
+- **Database:** MySQL
+- **Testing:** Postman for API Testing
+
+---
+
+<br>
+
 ## ⚙️ Setup Instructions
 
 1. **Clone the repository**

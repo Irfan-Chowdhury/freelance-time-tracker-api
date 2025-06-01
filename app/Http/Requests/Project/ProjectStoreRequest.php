@@ -2,27 +2,12 @@
 
 namespace App\Http\Requests\Project;
 
+use App\Traits\FailedValidationTrait;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ProjectStoreRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    protected function failedValidation(Validator $validator)
-    {
-        if ($this->is('api/*') || $this->expectsJson()) {
-            throw new HttpResponseException(
-                response()->json(['errors' => $validator->errors()], 422)
-            );
-        }
-
-        parent::failedValidation($validator);  // Use the default behavior for non-API requests
-    }
+    use FailedValidationTrait;
 
     public function rules(): array
     {

@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegistrationRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -33,6 +32,7 @@ class AuthController extends Controller
             'token' => $token,
         ], 201);
     }
+
     public function login(LoginRequest $request)
     {
         $user = User::where('email', $request->email)->first();
@@ -63,7 +63,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully'
+            'message' => 'Logged out successfully',
         ], 200);
     }
 

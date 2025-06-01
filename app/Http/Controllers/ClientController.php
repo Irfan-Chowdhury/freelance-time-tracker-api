@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\ClientStoreRequest;
 use App\Http\Requests\Client\ClientUpdateRequest;
 use App\Models\Client;

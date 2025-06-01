@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Traits;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class SearchRequest extends FormRequest
+trait FailedValidationTrait
 {
     public function authorize(): bool
     {
         return true;
     }
 
-    protected function failedValidation(Validator $validator)
+    protected function FailedValidationTrait(Validator $validator)
     {
         if ($this->is('api/*') || $this->expectsJson()) {
             throw new HttpResponseException(
@@ -21,13 +20,6 @@ class SearchRequest extends FormRequest
             );
         }
 
-        parent::failedValidation($validator);  // Use the default behavior for non-API requests
-    }
-
-    public function rules(): array
-    {
-        return [
-            'nid' => 'required|numeric',
-        ];
+        parent::FailedValidationTrait($validator);
     }
 }

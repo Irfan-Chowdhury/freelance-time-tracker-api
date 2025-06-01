@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\ClientController;
-use App\Http\Controllers\API\ProjectController;
-use App\Http\Controllers\API\ReportController;
-use App\Http\Controllers\API\TimeLogController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TimeLogController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

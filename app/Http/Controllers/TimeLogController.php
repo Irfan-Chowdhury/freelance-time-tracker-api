@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\TimeLog\TimeLogStoreRequest;
 use App\Http\Requests\TimeLog\TimeLogUpdateRequest;
 use App\Models\TimeLog;
@@ -11,7 +10,6 @@ use Illuminate\Http\Request;
 use DB;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
-
 
 class TimeLogController extends Controller
 {
@@ -72,9 +70,6 @@ class TimeLogController extends Controller
             }
         }
     }
-
-
-
 
 
     public function update(TimeLogUpdateRequest $request, TimeLog $timeLog)
