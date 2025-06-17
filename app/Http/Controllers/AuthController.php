@@ -18,6 +18,7 @@ class AuthController extends Controller
     {
         try {
             $data = $request->validated();
+
             $user = User::create($data);
             $token = $user->createToken('authToken')->plainTextToken;
 
@@ -39,7 +40,7 @@ class AuthController extends Controller
 
             if (! $user || ! Hash::check($request->password, $user->password)) {
                 throw ValidationException::withMessages([
-                    'email' => ['The provided credentials are incorrect.'],
+                    'error' => ['The provided credentials are incorrect.'],
                 ]);
             }
 
@@ -62,7 +63,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully',
+            'message' => 'Logged out successfully.',
         ], 200);
     }
 
@@ -73,10 +74,10 @@ class AuthController extends Controller
 
     private function errorInfo($errorMessage)
     {
-        Log::error('Failed to create time log: '.$errorMessage);
+        Log::error('Something went wrong: '.$errorMessage);
 
         return response()->json([
-            'message' => 'Something went wrong while creating time log.',
+            'message' => 'Something went wrong.',
             'error' => $errorMessage,
         ], 500);
     }

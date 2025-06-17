@@ -15,6 +15,8 @@ class ClientController extends Controller
 {
     public function index(Request $request)
     {
+        return $request->user();
+
         try {
             $clients = Cache::remember('user_'.$request->user()->id.'_clients', now()->addMinutes(30), function () use ($request) {
                 return $request->user()->clients()->get();

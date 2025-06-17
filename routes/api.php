@@ -5,21 +5,9 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TimeLogController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Response;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -44,16 +32,13 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     });
 
     Route::get('/report', [ReportController::class, 'index']);
-
-
-    Route::get('/clear-cache', function () {
-        Artisan::call('cache:clear');
-        
-        return response()->json([
-            'message' => 'Cache cleared successfully.',
-        ]);
-    });
-
 });
 
+Route::get('/clear-cache', function () {
+    Artisan::call('cache:clear');
+
+    return response()->json([
+        'message' => 'Cache cleared successfully.',
+    ]);
+});
 
